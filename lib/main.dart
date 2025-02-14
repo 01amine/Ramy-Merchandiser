@@ -13,7 +13,8 @@ void main() async{
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key, required List<CameraDescription> cameras});
+  final List<CameraDescription> cameras;
+   MyApp({super.key, required this.cameras});
 
   @override
   Widget build(BuildContext context) {

@@ -4,7 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../overview/presentation/widgets/camera_control.dart';
 import '../bloc/scan/scan_bloc.dart';
-import '../widgets/scan_overlay.dart';
+import 'processed_image_screen.dart';
 
 class ScanScreen extends StatefulWidget {
   final List<CameraDescription> cameras;
@@ -21,25 +21,23 @@ class _ScanScreenState extends State<ScanScreen> with TickerProviderStateMixin {
   late Animation<double> _flashAnimation;
   bool _isFlashOn = false;
   int _selectedCamera = 0;
-
-  @override
-  void initState() {
-    super.initState();
-    _initializeCamera();
-    _setupAnimations();
-  }
+  bool _isProcessing = false;
 
   void _initializeCamera() async {
-    _controller = CameraController(
-      widget.cameras[_selectedCamera],
-      ResolutionPreset.high,
-      enableAudio: false,
-    );
-    await _controller.initialize();
-    // Lock orientation to portrait
-    await _controller.lockCaptureOrientation(DeviceOrientation.portraitUp);
-    if (!mounted) return;
-    setState(() {});
+    try {
+      _controller = CameraController(
+        widget.cameras[_selectedCamera],
+        ResolutionPreset.high,
+        enableAudio: false,
+      );
+      await _controller.initialize();
+      await _controller.lockCaptureOrientation(DeviceOrientation.portraitUp);
+
+      if (!mounted) return;
+      setState(() {});
+    } catch (e) {
+      debugPrint("Camera initialization error: $e");
+    }
   }
 
   Future<void> _switchCamera() async {
@@ -66,9 +64,7 @@ class _ScanScreenState extends State<ScanScreen> with TickerProviderStateMixin {
       setState(() {
         _isFlashOn = !_isFlashOn;
       });
-    } catch (e) {
-      // Handle error
-    }
+    } catch (e) {}
   }
 
   void _setupAnimations() {
@@ -93,9 +89,89 @@ class _ScanScreenState extends State<ScanScreen> with TickerProviderStateMixin {
         _flashAnimationController.reverse();
       });
 
-      // ignore: unused_local_variable
       final image = await _controller.takePicture();
-    } catch (e) {}
+
+      _showLoadingPopup();
+
+      await Future.delayed(const Duration(seconds: 2));
+
+      if (!mounted) return;
+
+      Navigator.of(context).pop();
+
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (context) => ProcessedImageScreen(imagePath: image.path),
+        ),
+      );
+    } catch (e) {
+      debugPrint("Error capturing image: $e");
+    }
+  }
+
+  void _showLoadingPopup() {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) {
+        return Dialog(
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          elevation: 10,
+          backgroundColor: Colors.white,
+          child: Padding(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Custom Animated Loader
+                SizedBox(
+                  height: 60,
+                  width: 60,
+                  child: Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      CircularProgressIndicator(
+                        valueColor: AlwaysStoppedAnimation(Colors.deepPurple),
+                        strokeWidth: 6,
+                      ),
+                      Icon(Icons.image_search,
+                          color: Colors.deepPurple, size: 28),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 16),
+
+                // Loading Text
+                const Text(
+                  "Processing Image...",
+                  style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.deepPurple),
+                ),
+
+                const SizedBox(height: 10),
+
+                // Subtitle
+                const Text(
+                  "Please wait a moment while we analyze your image.",
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontSize: 14, color: Colors.black54),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _initializeCamera();
+    _setupAnimations();
   }
 
   @override
@@ -109,23 +185,12 @@ class _ScanScreenState extends State<ScanScreen> with TickerProviderStateMixin {
     return Scaffold(
       body: Stack(
         children: [
-          // Camera Preview - Modified for portrait and full screen
           Positioned.fill(
             child: RotatedBox(
-              quarterTurns: 1, // Rotate 90 degrees clockwise
-              child: FittedBox(
-                fit: BoxFit.cover,
-                child: SizedBox(
-                  width: MediaQuery.of(context).size.width,
-                  height: MediaQuery.of(context).size.height,
-                  child: CameraPreview(_controller),
-                ),
-              ),
+              quarterTurns: _controller.description.sensorOrientation ~/ 90,
+              child: CameraPreview(_controller),
             ),
           ),
-
-          // Scan Overlay
-          const ScanOverlay(),
 
           // Flash Animation
           AnimatedBuilder(
@@ -133,14 +198,16 @@ class _ScanScreenState extends State<ScanScreen> with TickerProviderStateMixin {
             builder: (context, child) {
               return Opacity(
                 opacity: _flashAnimation.value,
-                child: Container(
-                  color: Colors.white,
-                ),
+                child: Container(color: Colors.white),
               );
             },
           ),
 
-          // Camera Controls (unchanged)
+          if (_isProcessing)
+            const Center(
+              child: CircularProgressIndicator(color: Colors.white),
+            ),
+
           Positioned(
             left: 0,
             right: 0,

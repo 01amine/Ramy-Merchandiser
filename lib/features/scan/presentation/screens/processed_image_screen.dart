@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 
@@ -16,11 +15,10 @@ class ProcessedImageScreen extends StatelessWidget {
     return Scaffold(
       body: Column(
         children: [
-          // Scanned Image
           Expanded(
             child: Stack(
               children: [
-                Image.file(File(imagePath),
+                Image.asset('assets/produits_selectionnees.png',
                     fit: BoxFit.cover, width: double.infinity),
                 Container(
                   color: Colors.black.withOpacity(0.3),
@@ -37,8 +35,6 @@ class ProcessedImageScreen extends StatelessWidget {
               ],
             ),
           ),
-
-          // Product Details & Chart
           Container(
             padding: const EdgeInsets.all(16),
             decoration: const BoxDecoration(
@@ -54,7 +50,7 @@ class ProcessedImageScreen extends StatelessWidget {
                   style: TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
-                      color: Colors.deepPurple),
+                      color: Colors.orangeAccent),
                 ),
                 const SizedBox(height: 10),
 
@@ -68,13 +64,10 @@ class ProcessedImageScreen extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        _buildDetailRow("Product Family", "Pack Ramy 2 L"),
-                        _buildDetailRow(
-                            "Total Products", totalProducts.toString()),
-                        _buildDetailRow("Rouiba Products",
-                            enemyProducts.toString(), Colors.red),
-                        _buildDetailRow("Touja Products",
-                            friendlyProducts.toString(), Colors.green),
+                        _buildDetailRow("Product Family", "Pet Milky 2 L"),
+                        _buildDetailRow("Total Products", "43"),
+                        _buildDetailRow("Rouiba Products", "20", Colors.red),
+                        _buildDetailRow("Ramy Products", "12", Colors.green),
                       ],
                     ),
                   ),
@@ -82,7 +75,6 @@ class ProcessedImageScreen extends StatelessWidget {
 
                 const SizedBox(height: 20),
 
-                // Pie Chart
                 SizedBox(
                   height: 150,
                   child: PieChart(
@@ -116,8 +108,6 @@ class ProcessedImageScreen extends StatelessWidget {
                 ),
 
                 const SizedBox(height: 20),
-
-                // Approve & Decline Buttons
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
@@ -143,7 +133,6 @@ class ProcessedImageScreen extends StatelessWidget {
     );
   }
 
-  // Show Approval/Decline Popup & Navigate Back
   void _showResultPopup(BuildContext context, bool isApproved) {
     showDialog(
       context: context,
@@ -159,15 +148,12 @@ class ProcessedImageScreen extends StatelessWidget {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                // Icon
                 Icon(
                   isApproved ? Icons.check_circle : Icons.flag,
                   size: 60,
                   color: isApproved ? Colors.green : Colors.red,
                 ),
                 const SizedBox(height: 16),
-
-                // Title
                 Text(
                   isApproved ? "Approved!" : "Declined!",
                   style: TextStyle(
@@ -177,8 +163,6 @@ class ProcessedImageScreen extends StatelessWidget {
                 ),
 
                 const SizedBox(height: 10),
-
-                // Message
                 Text(
                   isApproved
                       ? "The product has been successfully approved."
@@ -192,8 +176,8 @@ class ProcessedImageScreen extends StatelessWidget {
                 // Close Button
                 ElevatedButton(
                   onPressed: () {
-                    Navigator.pop(context); // Close popup
-                    Navigator.pop(context); // Go back to scanner
+                    Navigator.pop(context);
+                    Navigator.pop(context);
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: isApproved ? Colors.green : Colors.red,
@@ -211,7 +195,6 @@ class ProcessedImageScreen extends StatelessWidget {
     );
   }
 
-  // Helper function to build product details row
   Widget _buildDetailRow(String label, String value, [Color? color]) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4),
@@ -231,7 +214,6 @@ class ProcessedImageScreen extends StatelessWidget {
     );
   }
 
-  // Helper function to build action buttons
   Widget _buildActionButton(
       {required String label,
       required IconData icon,

@@ -1,5 +1,3 @@
-
-
 import '../../domain/entities/user.dart';
 
 class UserModel {
@@ -36,12 +34,11 @@ class UserModel {
 extension UserXModel on UserModel {
   UserEntity toEntity() {
     return UserEntity(
-        nom: nom,
-        prenom: prenom,
-        email: email,
-        date_naissance: date_naissance,
-        sexe: sexe,
-        numero_carte_identite: numero_carte_identite,
-        permission_parentale: permission_parentale);
+      nom: nom,
+      prenom: prenom,
+      email: email,
+      date_naissance: date_naissance,
+      numero_carte_identite: numero_carte_identite,
+    );
   }
 }

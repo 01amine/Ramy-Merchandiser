@@ -4,7 +4,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:ramy/features/scan/presentation/screens/scan_screen.dart';
 import '../../../core/constants/images.dart';
-import '../../map/presentation/bloc/map_bloc.dart';
 import '../../map/presentation/screens/map_page.dart';
 import '../../overview/presentation/screen/dashboard_screen.dart';
 import '../../profile/data/data_source/data_source.dart';
@@ -25,10 +24,7 @@ class HomeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final pages = [
       DashboardScreen(cameras: cameras),
-      BlocProvider(
-        create: (context) => MapBloc(),
-        child: MapScreen(),
-      ),
+      MapScreen(),
       ScanScreen(cameras: cameras),
       BlocProvider(
         create: (_) => ProfileBloc(

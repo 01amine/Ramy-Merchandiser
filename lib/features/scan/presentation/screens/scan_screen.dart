@@ -41,29 +41,20 @@ class _ScanScreenState extends State<ScanScreen> with TickerProviderStateMixin {
 
   Future<void> _switchCamera() async {
     final cameraIndex = (_selectedCamera + 1) % widget.cameras.length;
-
     await _controller.dispose();
-    setState(() {
-      _selectedCamera = cameraIndex;
-    });
-
+    setState(() => _selectedCamera = cameraIndex);
     _initializeCamera();
   }
 
   Future<void> _toggleFlash() async {
     if (!_controller.value.isInitialized) return;
-
     try {
-      if (_isFlashOn) {
-        await _controller.setFlashMode(FlashMode.off);
-      } else {
-        await _controller.setFlashMode(FlashMode.torch);
-      }
-
-      setState(() {
-        _isFlashOn = !_isFlashOn;
-      });
-    } catch (e) {}
+      await _controller
+          .setFlashMode(_isFlashOn ? FlashMode.off : FlashMode.torch);
+      setState(() => _isFlashOn = !_isFlashOn);
+    } catch (e) {
+      debugPrint("Flash toggle error: $e");
+    }
   }
 
   void _setupAnimations() {
@@ -71,37 +62,27 @@ class _ScanScreenState extends State<ScanScreen> with TickerProviderStateMixin {
       duration: const Duration(milliseconds: 200),
       vsync: this,
     );
-
-    _flashAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(
-        parent: _flashAnimationController,
-        curve: Curves.easeInOut,
-      ),
+    _flashAnimation = CurvedAnimation(
+      parent: _flashAnimationController,
+      curve: Curves.easeInOut,
     );
   }
 
   Future<void> _captureImage() async {
     if (!_controller.value.isInitialized) return;
-
     try {
-      _flashAnimationController.forward().then((_) {
-        _flashAnimationController.reverse();
-      });
-
+      _flashAnimationController
+          .forward()
+          .then((_) => _flashAnimationController.reverse());
       final image = await _controller.takePicture();
-
       _showLoadingPopup();
-
       await Future.delayed(const Duration(seconds: 2));
-
       if (!mounted) return;
-
-      Navigator.of(context).pop();
-
-      Navigator.of(context).push(
+      Navigator.pop(context);
+      Navigator.push(
+        context,
         MaterialPageRoute(
-          builder: (context) => ProcessedImageScreen(imagePath: image.path),
-        ),
+            builder: (context) => ProcessedImageScreen(imagePath: image.path)),
       );
     } catch (e) {
       debugPrint("Error capturing image: $e");
@@ -112,57 +93,48 @@ class _ScanScreenState extends State<ScanScreen> with TickerProviderStateMixin {
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (context) {
-        return Dialog(
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-          elevation: 10,
-          backgroundColor: Colors.white,
-          child: Padding(
-            padding: const EdgeInsets.all(20),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                // Custom Animated Loader
-                SizedBox(
-                  height: 60,
-                  width: 60,
-                  child: Stack(
-                    alignment: Alignment.center,
-                    children: [
-                      CircularProgressIndicator(
-                        valueColor: AlwaysStoppedAnimation(Colors.deepPurple),
-                        strokeWidth: 6,
-                      ),
-                      Icon(Icons.image_search,
-                          color: Colors.deepPurple, size: 28),
-                    ],
-                  ),
+      builder: (context) => Dialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        elevation: 10,
+        backgroundColor: Colors.white,
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              SizedBox(
+                height: 60,
+                width: 60,
+                child: Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    CircularProgressIndicator(
+                      valueColor: AlwaysStoppedAnimation(Colors.deepPurple),
+                      strokeWidth: 6,
+                    ),
+                    Icon(Icons.image_search,
+                        color: Colors.deepPurple, size: 28),
+                  ],
                 ),
-                const SizedBox(height: 16),
-
-                // Loading Text
-                const Text(
-                  "Processing Image...",
-                  style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.deepPurple),
-                ),
-
-                const SizedBox(height: 10),
-
-                // Subtitle
-                const Text(
-                  "Please wait a moment while we analyze your image.",
-                  textAlign: TextAlign.center,
-                  style: TextStyle(fontSize: 14, color: Colors.black54),
-                ),
-              ],
-            ),
+              ),
+              const SizedBox(height: 16),
+              const Text(
+                "Processing Image...",
+                style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.deepPurple),
+              ),
+              const SizedBox(height: 10),
+              const Text(
+                "Please wait a moment while we analyze your image.",
+                textAlign: TextAlign.center,
+                style: TextStyle(fontSize: 14, color: Colors.black54),
+              ),
+            ],
           ),
-        );
-      },
+        ),
+      ),
     );
   }
 
@@ -176,9 +148,7 @@ class _ScanScreenState extends State<ScanScreen> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     if (!_controller.value.isInitialized) {
-      return const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
-      );
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
     return Scaffold(
@@ -190,23 +160,17 @@ class _ScanScreenState extends State<ScanScreen> with TickerProviderStateMixin {
               child: CameraPreview(_controller),
             ),
           ),
-
-          // Flash Animation
           AnimatedBuilder(
             animation: _flashAnimation,
-            builder: (context, child) {
-              return Opacity(
-                opacity: _flashAnimation.value,
-                child: Container(color: Colors.white),
-              );
-            },
+            builder: (context, child) => Opacity(
+              opacity: _flashAnimation.value,
+              child: Container(color: Colors.white),
+            ),
           ),
-
           if (_isProcessing)
             const Center(
               child: CircularProgressIndicator(color: Colors.white),
             ),
-
           Positioned(
             left: 0,
             right: 0,
@@ -215,13 +179,11 @@ class _ScanScreenState extends State<ScanScreen> with TickerProviderStateMixin {
               onCapture: _captureImage,
               onFlashToggle: _toggleFlash,
               onCameraSwitch: _switchCamera,
-              onVoiceCount: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (context) => const VoiceRecordScreen(),
-                  ),
-                );
-              },
+              onVoiceCount: () => Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => const VoiceRecordScreen()),
+              ),
               isFlashOn: _isFlashOn,
             ),
           ),

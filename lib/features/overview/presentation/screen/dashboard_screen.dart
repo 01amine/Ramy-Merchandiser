@@ -5,7 +5,6 @@ import '../widgets/alert_card.dart';
 import '../widgets/performance_card.dart';
 import '../widgets/route_card.dart';
 
-
 class DashboardScreen extends StatelessWidget {
   final List<CameraDescription> cameras;
 
@@ -16,33 +15,32 @@ class DashboardScreen extends StatelessWidget {
     return Scaffold(
       body: SafeArea(
         child: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  'Dashboard',
-                  style: TextStyle(
-                    fontSize: 28,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 20),
-                _buildNewScanButton(context),
-                const SizedBox(height: 24),
-                _buildPriorityAlerts(),
-                const SizedBox(height: 24),
-                _buildTodaysRoute(),
-                const SizedBox(height: 24),
-                _buildPerformanceSection(),
-                const SizedBox(height: 80), // Space for bottom navigation
-              ],
-            ),
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildHeader(),
+              const SizedBox(height: 20),
+              _buildNewScanButton(context),
+              const SizedBox(height: 24),
+              _buildPriorityAlerts(),
+              const SizedBox(height: 24),
+              _buildTodaysRoute(),
+              const SizedBox(height: 24),
+              _buildPerformanceSection(),
+              const SizedBox(height: 80), // Space for bottom navigation
+            ],
           ),
         ),
       ),
-     
+    );
+  }
+
+  Widget _buildHeader() {
+    return Image.asset(
+      'assets/ramy_logo.png',
+      scale: 2.5,
+      alignment: Alignment.center,
     );
   }
 
@@ -50,11 +48,9 @@ class DashboardScreen extends StatelessWidget {
     return ElevatedButton(
       onPressed: () => _navigateToScan(context),
       style: ElevatedButton.styleFrom(
-        backgroundColor: Colors.deepOrange,
+        backgroundColor: Colors.orangeAccent,
         minimumSize: const Size(double.infinity, 50),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       ),
       child: const Text(
         'New Shelf Scan',
@@ -67,13 +63,7 @@ class DashboardScreen extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
-          'Priority Alerts',
-          style: TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
+        _sectionTitle('Priority Alerts'),
         const SizedBox(height: 16),
         AlertCard(
           title: 'Low Stock Warning',
@@ -105,32 +95,30 @@ class DashboardScreen extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
-          'Performance',
-          style: TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
+        _sectionTitle('Performance'),
         const SizedBox(height: 12),
         Row(
           children: const [
             Expanded(
-              child: PerformanceCard(
-                value: '85%',
-                label: 'Completion Rate',
-              ),
+              child: PerformanceCard(value: '85%', label: 'Completion Rate'),
             ),
             SizedBox(width: 12),
             Expanded(
-              child: PerformanceCard(
-                value: '92%',
-                label: 'Accuracy',
-              ),
+              child: PerformanceCard(value: '92%', label: 'Accuracy'),
             ),
           ],
         ),
       ],
+    );
+  }
+
+  Widget _sectionTitle(String title) {
+    return Text(
+      title,
+      style: const TextStyle(
+        fontSize: 20,
+        fontWeight: FontWeight.bold,
+      ),
     );
   }
 
@@ -143,4 +131,3 @@ class DashboardScreen extends StatelessWidget {
     );
   }
 }
-

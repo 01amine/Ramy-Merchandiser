@@ -1,22 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 
-void main() {
-  runApp(const MyApp());
-}
-
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return const MaterialApp(
-      title: 'Product Analysis',
-      home: ProcessedTextScreen(),
-    );
-  }
-}
-
 class ProcessedTextScreen extends StatelessWidget {
   const ProcessedTextScreen({super.key});
 
@@ -29,7 +13,9 @@ class ProcessedTextScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text("Product Analysis"),
-        backgroundColor: Colors.deepPurple,
+        backgroundColor: Colors.orangeAccent,
+        centerTitle: true,
+        elevation: 5,
       ),
       body: SafeArea(
         child: SingleChildScrollView(
@@ -38,29 +24,31 @@ class ProcessedTextScreen extends StatelessWidget {
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
               color: Colors.white,
-              borderRadius:
-                  const BorderRadius.vertical(top: Radius.circular(20)),
-              boxShadow: const [
-                BoxShadow(color: Colors.black12, blurRadius: 10)
+              borderRadius: BorderRadius.circular(20),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black12,
+                  blurRadius: 10,
+                  spreadRadius: 2,
+                ),
               ],
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Section Title
                 const Text(
                   "Product Analysis",
                   style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.deepPurple),
+                    fontSize: 22,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.orangeAccent,
+                  ),
                 ),
                 const SizedBox(height: 10),
-
-                // Product Information Card
                 Card(
                   shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12)),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
                   elevation: 4,
                   child: Padding(
                     padding: const EdgeInsets.all(16),
@@ -79,10 +67,7 @@ class ProcessedTextScreen extends StatelessWidget {
                     ),
                   ),
                 ),
-
                 const SizedBox(height: 20),
-
-                // Pie Chart Section
                 SizedBox(
                   height: 150,
                   child: PieChart(
@@ -96,9 +81,10 @@ class ProcessedTextScreen extends StatelessWidget {
                           color: Colors.green,
                           radius: 50,
                           titleStyle: const TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16,
-                              color: Colors.white),
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                            color: Colors.white,
+                          ),
                         ),
                         PieChartSectionData(
                           value: enemyProducts.toDouble(),
@@ -106,18 +92,16 @@ class ProcessedTextScreen extends StatelessWidget {
                           color: Colors.red,
                           radius: 50,
                           titleStyle: const TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16,
-                              color: Colors.white),
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                            color: Colors.white,
+                          ),
                         ),
                       ],
                     ),
                   ),
                 ),
-
                 const SizedBox(height: 20),
-
-                // Approve & Decline Buttons
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
@@ -158,26 +142,21 @@ class ProcessedTextScreen extends StatelessWidget {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                // Icon
                 Icon(
                   isApproved ? Icons.check_circle : Icons.flag,
                   size: 60,
                   color: isApproved ? Colors.green : Colors.red,
                 ),
                 const SizedBox(height: 16),
-
-                // Title
                 Text(
                   isApproved ? "Approved!" : "Declined!",
                   style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                      color: isApproved ? Colors.green : Colors.red),
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: isApproved ? Colors.green : Colors.red,
+                  ),
                 ),
-
                 const SizedBox(height: 10),
-
-                // Message
                 Text(
                   isApproved
                       ? "The product has been successfully approved."
@@ -185,15 +164,9 @@ class ProcessedTextScreen extends StatelessWidget {
                   textAlign: TextAlign.center,
                   style: const TextStyle(fontSize: 14, color: Colors.black54),
                 ),
-
                 const SizedBox(height: 20),
-
-                // Close Button
                 ElevatedButton(
-                  onPressed: () {
-                    Navigator.pop(context); // Close popup
-                    Navigator.pop(context); // Optionally go back
-                  },
+                  onPressed: () => Navigator.pop(context),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: isApproved ? Colors.green : Colors.red,
                     shape: RoundedRectangleBorder(
@@ -210,7 +183,6 @@ class ProcessedTextScreen extends StatelessWidget {
     );
   }
 
-  // Helper function to build product details row
   Widget _buildDetailRow(String label, String value, [Color? color]) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4),
@@ -230,13 +202,11 @@ class ProcessedTextScreen extends StatelessWidget {
     );
   }
 
-  // Helper function to build action buttons
-  Widget _buildActionButton({
-    required String label,
-    required IconData icon,
-    required Color color,
-    required VoidCallback onTap,
-  }) {
+  Widget _buildActionButton(
+      {required String label,
+      required IconData icon,
+      required Color color,
+      required VoidCallback onTap}) {
     return ElevatedButton.icon(
       style: ElevatedButton.styleFrom(
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),

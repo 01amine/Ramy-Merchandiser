@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'processed_text_screen.dart';
 
 class VoiceRecordScreen extends StatefulWidget {
-  const VoiceRecordScreen({Key? key}) : super(key: key);
+  const VoiceRecordScreen({super.key});
 
   @override
   _VoiceRecordScreenState createState() => _VoiceRecordScreenState();
@@ -18,18 +18,16 @@ class _VoiceRecordScreenState extends State<VoiceRecordScreen> {
       _transcribedText = "Listening...";
     });
 
-    // Simulate voice recording delay
-    Future.delayed(const Duration(seconds: 3), () {
+    Future.delayed(const Duration(seconds: 13), () {
       setState(() {
         _isRecording = false;
         _transcribedText =
-            "3 Bottles of Pack Frutty Kids 20 CL on two shelves, 2 Bottles of Ramy UP 125 ML on 3 shelves";
+            "There is a mistake, 3 Bottles of Pack Frutty Kids not Pack Frutty, and 2 Bottles of Ramy UP 125 ML on 3 shelves";
       });
     });
   }
 
   void _processText() async {
-    // Show a popup with an animated loader while processing the text
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -44,24 +42,8 @@ class _VoiceRecordScreenState extends State<VoiceRecordScreen> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              SizedBox(
-                height: 60,
-                width: 60,
-                child: Stack(
-                  alignment: Alignment.center,
-                  children: [
-                    CircularProgressIndicator(
-                      valueColor:
-                          const AlwaysStoppedAnimation(Colors.deepPurple),
-                      strokeWidth: 6,
-                    ),
-                    const Icon(
-                      Icons.record_voice_over,
-                      color: Colors.deepPurple,
-                      size: 28,
-                    ),
-                  ],
-                ),
+              const CircularProgressIndicator(
+                valueColor: AlwaysStoppedAnimation(Colors.orange),
               ),
               const SizedBox(height: 16),
               const Text(
@@ -69,16 +51,7 @@ class _VoiceRecordScreenState extends State<VoiceRecordScreen> {
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
-                  color: Colors.deepPurple,
-                ),
-              ),
-              const SizedBox(height: 10),
-              const Text(
-                "Please wait while we analyze your input.",
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 14,
-                  color: Colors.black54,
+                  color: Colors.orange,
                 ),
               ),
             ],
@@ -87,11 +60,8 @@ class _VoiceRecordScreenState extends State<VoiceRecordScreen> {
       ),
     );
 
-    // Simulate text processing delay
     await Future.delayed(const Duration(seconds: 2));
-
     Navigator.of(context).pop();
-
     Navigator.of(context).push(
       MaterialPageRoute(
         builder: (context) => ProcessedTextScreen(),
@@ -102,7 +72,10 @@ class _VoiceRecordScreenState extends State<VoiceRecordScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Voice Recorder")),
+      appBar: AppBar(
+        title: const Text("Voice Recorder"),
+        backgroundColor: Colors.orange,
+      ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -110,31 +83,44 @@ class _VoiceRecordScreenState extends State<VoiceRecordScreen> {
           children: [
             const Text(
               "Record your voice below:",
-              style: TextStyle(fontSize: 16),
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
             ),
             const SizedBox(height: 20),
             Center(
-              child: ElevatedButton(
-                onPressed: _isRecording ? null : _startRecording,
-                style: ElevatedButton.styleFrom(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
-                ),
-                child: Text(
-                  _isRecording ? "Recording..." : "Start Recording",
-                  style: const TextStyle(fontSize: 16),
+              child: InkWell(
+                onTap: _isRecording ? null : _startRecording,
+                child: Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  decoration: BoxDecoration(
+                    gradient: const LinearGradient(
+                      colors: [Colors.deepOrange, Colors.orange],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Center(
+                    child: Text(
+                      _isRecording ? "Recording..." : "Start Recording",
+                      style: const TextStyle(
+                        fontSize: 18,
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
                 ),
               ),
             ),
             const SizedBox(height: 20),
             Card(
-              elevation: 3,
+              elevation: 4,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                padding: const EdgeInsets.all(16),
                 child: Text(
                   "Recognized Text: $_transcribedText",
                   style: const TextStyle(fontSize: 16),
@@ -146,15 +132,29 @@ class _VoiceRecordScreenState extends State<VoiceRecordScreen> {
                 _transcribedText.isNotEmpty &&
                 _transcribedText != "Listening...")
               Center(
-                child: ElevatedButton(
-                  onPressed: _processText,
-                  style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 32, vertical: 12),
-                  ),
-                  child: const Text(
-                    "Process Text",
-                    style: TextStyle(fontSize: 16),
+                child: InkWell(
+                  onTap: _processText,
+                  child: Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    decoration: BoxDecoration(
+                      gradient: const LinearGradient(
+                        colors: [Colors.deepOrange, Colors.orange],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: const Center(
+                      child: Text(
+                        "Process Text",
+                        style: TextStyle(
+                          fontSize: 18,
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
                   ),
                 ),
               ),

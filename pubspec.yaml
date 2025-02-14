@@ -47,6 +47,8 @@ dependencies:
   geolocator: ^13.0.2
   equatable: ^2.0.7
   fl_chart: ^0.70.2
+  camera: ^0.11.1
+  speech_to_text: ^7.0.0
 
 dev_dependencies:
   flutter_test:

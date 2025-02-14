@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:ramy/features/overview/presentation/screen/overview_screen.dart';
 import '../../../core/constants/images.dart';
 import '../../map/presentation/bloc/map_bloc.dart';
 import '../../map/presentation/screens/map_page.dart';
+import '../../overview/presentation/screen/dashboard_screen.dart';
 import '../../profile/data/data_source/data_source.dart';
 import '../../profile/data/repositories/repository_impl.dart';
 import '../../profile/domain/usecases/get_profile.dart';
@@ -16,7 +16,7 @@ import '../cubit/bottom_navigation_cubit.dart';
 
 class HomeScreen extends StatelessWidget {
   final List<Widget> _pages = [
-    ProgressScreen(),
+    DashboardScreen(),
     BlocProvider(
       create: (context) => MapBloc(),
       child: MapScreen(),

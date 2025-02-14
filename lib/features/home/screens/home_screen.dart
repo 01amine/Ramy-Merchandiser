@@ -1,3 +1,4 @@
+import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
@@ -15,31 +16,32 @@ import '../../profile/presentation/screens/profile_settings_screen.dart';
 import '../cubit/bottom_navigation_cubit.dart';
 
 class HomeScreen extends StatelessWidget {
-  final List<Widget> _pages = [
-    DashboardScreen(),
-    BlocProvider(
-      create: (context) => MapBloc(),
-      child: MapScreen(),
-    ),
-    Scaffold(body: Center(child: Text('Scan'))),
-    BlocProvider(
-      create: (_) => ProfileBloc(
-        getProfile: GetProfile(ProfileRepositoryImpl(ProfileDataSourceImpl())),
-        updateProfile:
-            UpdateProfile(ProfileRepositoryImpl(ProfileDataSourceImpl())),
-      )..add(LoadProfile()),
-      child: const ProfileSettingsScreen(),
-    ),
-  ];
-
-  HomeScreen({super.key});
+  final List<CameraDescription> cameras;
+  
+  const HomeScreen({super.key, required this.cameras});
 
   @override
   Widget build(BuildContext context) {
+    final pages = [
+      DashboardScreen(cameras: cameras),
+      BlocProvider(
+        create: (context) => MapBloc(),
+        child: MapScreen(),
+      ),
+      Scaffold(body: Center(child: Text('Scan'))),
+      BlocProvider(
+        create: (_) => ProfileBloc(
+          getProfile: GetProfile(ProfileRepositoryImpl(ProfileDataSourceImpl())),
+          updateProfile: UpdateProfile(ProfileRepositoryImpl(ProfileDataSourceImpl())),
+        )..add(LoadProfile()),
+        child: const ProfileSettingsScreen(),
+      ),
+    ];
+
     return Scaffold(
       body: BlocBuilder<BottomNavigationCubit, int>(
         builder: (context, state) {
-          return _pages[state];
+          return pages[state];
         },
       ),
       bottomNavigationBar: BlocBuilder<BottomNavigationCubit, int>(

@@ -1,5 +1,6 @@
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
+import '../../../scan/presentation/screens/scan_screen.dart';
 import '../widgets/alert_card.dart';
 import '../widgets/performance_card.dart';
 import '../widgets/route_card.dart';

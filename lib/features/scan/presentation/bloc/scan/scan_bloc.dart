@@ -32,14 +32,14 @@ class ScanBloc extends Bloc<ScanEvent, ScanState> {
   }
   
   void _onStartScan(StartScan event, Emitter<ScanState> emit) {
-    // Implementation
+    
   }
   
   void _onCaptureImage(CaptureImage event, Emitter<ScanState> emit) {
-    // Implementation
+    
   }
   
   void _onStartVoiceCount(StartVoiceCount event, Emitter<ScanState> emit) {
-    // Implementation
+    
   }
 }

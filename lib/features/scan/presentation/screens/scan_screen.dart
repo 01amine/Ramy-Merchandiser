@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../overview/presentation/widgets/camera_control.dart';
-import '../bloc/scan/scan_bloc.dart';
 import 'processed_image_screen.dart';
+import 'voice_recording_screens.dart';
 
 class ScanScreen extends StatefulWidget {
   final List<CameraDescription> cameras;
@@ -217,7 +216,11 @@ class _ScanScreenState extends State<ScanScreen> with TickerProviderStateMixin {
               onFlashToggle: _toggleFlash,
               onCameraSwitch: _switchCamera,
               onVoiceCount: () {
-                context.read<ScanBloc>().add(StartVoiceCount());
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => const VoiceRecordScreen(),
+                  ),
+                );
               },
               isFlashOn: _isFlashOn,
             ),

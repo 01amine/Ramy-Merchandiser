@@ -2,7 +2,6 @@ import 'package:dio/dio.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get_it/get_it.dart';
 import 'package:ramy/shared/utils/persist_data.dart';
-import 'package:speech_to_text/speech_to_text.dart';
 
 import '../../features/auth/data/repository/auth.dart';
 import '../../features/auth/data/source/auth_api_service.dart';
@@ -25,7 +24,8 @@ class DepInj {
     sl.registerLazySingleton<Dio>(() => Dio());
 
     // Secure storage
-    sl.registerLazySingleton<FlutterSecureStorage>(() => const FlutterSecureStorage());
+    sl.registerLazySingleton<FlutterSecureStorage>(
+        () => const FlutterSecureStorage());
 
     // API service
     sl.registerLazySingleton<AuthApiService>(
@@ -37,25 +37,21 @@ class DepInj {
       () => AuthLocalServiceImpl(sl<FlutterSecureStorage>()),
     );
 
-    
     sl.registerLazySingleton<AuthRepository>(
       () => AuthRepositoryImpl(),
     );
 
-    
     sl.registerLazySingleton<PersistData>(() => PersistData());
 
-    sl.registerLazySingleton<LocationRepository>(() => LocationRepositoryImpl(LocationDataSourceImpl()));
+    sl.registerLazySingleton<LocationRepository>(
+        () => LocationRepositoryImpl(LocationDataSourceImpl()));
     sl.registerLazySingleton(() => GetCurrentLocation(sl()));
     sl.registerLazySingleton<ScanRepository>(() => ScanRepositoryImpl());
-  
-  // Use Cases
-  sl.registerLazySingleton(() => PerformScan(sl()));
-  
-  // BLoCs
-  sl.registerFactory(() => ScanBloc(sl()));
-  
-  // External
-  sl.registerLazySingleton(() => SpeechToText());
+
+    // Use Cases
+    sl.registerLazySingleton(() => PerformScan(sl()));
+
+    // BLoCs
+    sl.registerFactory(() => ScanBloc(sl()));
   }
 }

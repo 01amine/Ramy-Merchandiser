@@ -2,6 +2,7 @@ import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:ramy/features/scan/presentation/screens/scan_screen.dart';
 import '../../../core/constants/images.dart';
 import '../../map/presentation/bloc/map_bloc.dart';
 import '../../map/presentation/screens/map_page.dart';
@@ -17,7 +18,7 @@ import '../cubit/bottom_navigation_cubit.dart';
 
 class HomeScreen extends StatelessWidget {
   final List<CameraDescription> cameras;
-  
+
   const HomeScreen({super.key, required this.cameras});
 
   @override
@@ -28,11 +29,13 @@ class HomeScreen extends StatelessWidget {
         create: (context) => MapBloc(),
         child: MapScreen(),
       ),
-      Scaffold(body: Center(child: Text('Scan'))),
+      ScanScreen(cameras: cameras),
       BlocProvider(
         create: (_) => ProfileBloc(
-          getProfile: GetProfile(ProfileRepositoryImpl(ProfileDataSourceImpl())),
-          updateProfile: UpdateProfile(ProfileRepositoryImpl(ProfileDataSourceImpl())),
+          getProfile:
+              GetProfile(ProfileRepositoryImpl(ProfileDataSourceImpl())),
+          updateProfile:
+              UpdateProfile(ProfileRepositoryImpl(ProfileDataSourceImpl())),
         )..add(LoadProfile()),
         child: const ProfileSettingsScreen(),
       ),

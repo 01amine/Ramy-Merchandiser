@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../overview/presentation/widgets/camera_control.dart';
 import '../bloc/scan/scan_bloc.dart';
-
 import '../widgets/scan_overlay.dart';
 
 class ScanScreen extends StatefulWidget {
@@ -29,30 +29,28 @@ class _ScanScreenState extends State<ScanScreen> with TickerProviderStateMixin {
     _setupAnimations();
   }
 
-  void _initializeCamera() {
+  void _initializeCamera() async {
     _controller = CameraController(
       widget.cameras[_selectedCamera],
       ResolutionPreset.high,
       enableAudio: false,
     );
-    _controller.initialize().then((_) {
-      if (!mounted) return;
-      setState(() {});
-    });
+    await _controller.initialize();
+    // Lock orientation to portrait
+    await _controller.lockCaptureOrientation(DeviceOrientation.portraitUp);
+    if (!mounted) return;
+    setState(() {});
   }
 
-  void _setupAnimations() {
-    _flashAnimationController = AnimationController(
-      duration: const Duration(milliseconds: 200),
-      vsync: this,
-    );
+  Future<void> _switchCamera() async {
+    final cameraIndex = (_selectedCamera + 1) % widget.cameras.length;
 
-    _flashAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(
-        parent: _flashAnimationController,
-        curve: Curves.easeInOut,
-      ),
-    );
+    await _controller.dispose();
+    setState(() {
+      _selectedCamera = cameraIndex;
+    });
+
+    _initializeCamera();
   }
 
   Future<void> _toggleFlash() async {
@@ -73,15 +71,18 @@ class _ScanScreenState extends State<ScanScreen> with TickerProviderStateMixin {
     }
   }
 
-  Future<void> _switchCamera() async {
-    final cameraIndex = (_selectedCamera + 1) % widget.cameras.length;
+  void _setupAnimations() {
+    _flashAnimationController = AnimationController(
+      duration: const Duration(milliseconds: 200),
+      vsync: this,
+    );
 
-    await _controller.dispose();
-    setState(() {
-      _selectedCamera = cameraIndex;
-    });
-
-    _initializeCamera();
+    _flashAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(
+        parent: _flashAnimationController,
+        curve: Curves.easeInOut,
+      ),
+    );
   }
 
   Future<void> _captureImage() async {
@@ -94,7 +95,6 @@ class _ScanScreenState extends State<ScanScreen> with TickerProviderStateMixin {
 
       // ignore: unused_local_variable
       final image = await _controller.takePicture();
-      
     } catch (e) {}
   }
 
@@ -109,13 +109,17 @@ class _ScanScreenState extends State<ScanScreen> with TickerProviderStateMixin {
     return Scaffold(
       body: Stack(
         children: [
-          // Camera Preview
-          Transform.scale(
-            scale: 1.0,
-            child: Center(
-              child: AspectRatio(
-                aspectRatio: _controller.value.aspectRatio,
-                child: CameraPreview(_controller),
+          // Camera Preview - Modified for portrait and full screen
+          Positioned.fill(
+            child: RotatedBox(
+              quarterTurns: 1, // Rotate 90 degrees clockwise
+              child: FittedBox(
+                fit: BoxFit.cover,
+                child: SizedBox(
+                  width: MediaQuery.of(context).size.width,
+                  height: MediaQuery.of(context).size.height,
+                  child: CameraPreview(_controller),
+                ),
               ),
             ),
           ),
@@ -136,7 +140,7 @@ class _ScanScreenState extends State<ScanScreen> with TickerProviderStateMixin {
             },
           ),
 
-          // Camera Controls
+          // Camera Controls (unchanged)
           Positioned(
             left: 0,
             right: 0,

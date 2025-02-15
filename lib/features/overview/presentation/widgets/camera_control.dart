@@ -8,13 +8,13 @@ class CameraControls extends StatelessWidget {
   final bool isFlashOn;
   
   const CameraControls({
-    Key? key,
+    super.key,
     required this.onCapture,
     required this.onFlashToggle,
     required this.onCameraSwitch,
     required this.onVoiceCount,
     this.isFlashOn = false,
-  }) : super(key: key);
+  });
   
   @override
   Widget build(BuildContext context) {

@@ -5,10 +5,10 @@ class RouteCard extends StatelessWidget {
   final String subtitle;
 
   const RouteCard({
-    Key? key,
+    super.key,
     required this.storeCount,
     required this.subtitle,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

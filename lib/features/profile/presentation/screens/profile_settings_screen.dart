@@ -1,12 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../bloc/profile_bloc.dart';
-import '../bloc/profile_event.dart';
 import '../bloc/profile_state.dart';
 import '../../domain/entities/profile.dart';
 
 class ProfileSettingsScreen extends StatelessWidget {
-  const ProfileSettingsScreen({super.key});
+  final Profile profile;
+  final void Function(Profile) onProfileUpdate;
+
+  const ProfileSettingsScreen({
+    super.key,
+    required this.profile,
+    required this.onProfileUpdate,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -61,9 +67,7 @@ class ProfileSettingsScreen extends StatelessWidget {
                 name: nameController.text,
                 email: emailController.text,
               );
-              context
-                  .read<ProfileBloc>()
-                  .add(UpdateProfileEvent(updatedProfile));
+              onProfileUpdate(updatedProfile);
             },
             child: const Text('Save Changes'),
           ),

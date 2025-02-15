@@ -2,13 +2,20 @@ import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
 import 'package:flutter/services.dart';
 import '../../../overview/presentation/widgets/camera_control.dart';
-import 'processed_image_screen.dart';
-import 'voice_recording_screens.dart';
 
 class ScanScreen extends StatefulWidget {
   final List<CameraDescription> cameras;
+  final Function(String imagePath)? onImageCaptured;
+  final bool enableAudio;
+  final FlashMode initialFlashMode;
 
-  const ScanScreen({super.key, required this.cameras});
+  const ScanScreen({
+    super.key,
+    required this.cameras,
+    this.onImageCaptured,
+    this.enableAudio = false,
+    this.initialFlashMode = FlashMode.off,
+  });
 
   @override
   State<ScanScreen> createState() => _ScanScreenState();
@@ -27,13 +34,12 @@ class _ScanScreenState extends State<ScanScreen> with TickerProviderStateMixin {
       _controller = CameraController(
         widget.cameras[_selectedCamera],
         ResolutionPreset.high,
-        enableAudio: false,
+        enableAudio: widget.enableAudio,
       );
       await _controller.initialize();
       await _controller.lockCaptureOrientation(DeviceOrientation.portraitUp);
-
-      if (!mounted) return;
-      setState(() {});
+      await _controller.setFlashMode(widget.initialFlashMode);
+      setState(() => _isFlashOn = widget.initialFlashMode == FlashMode.torch);
     } catch (e) {
       debugPrint("Camera initialization error: $e");
     }
@@ -49,8 +55,7 @@ class _ScanScreenState extends State<ScanScreen> with TickerProviderStateMixin {
   Future<void> _toggleFlash() async {
     if (!_controller.value.isInitialized) return;
     try {
-      await _controller
-          .setFlashMode(_isFlashOn ? FlashMode.off : FlashMode.torch);
+      await _controller.setFlashMode(_isFlashOn ? FlashMode.off : FlashMode.torch);
       setState(() => _isFlashOn = !_isFlashOn);
     } catch (e) {
       debugPrint("Flash toggle error: $e");
@@ -71,71 +76,15 @@ class _ScanScreenState extends State<ScanScreen> with TickerProviderStateMixin {
   Future<void> _captureImage() async {
     if (!_controller.value.isInitialized) return;
     try {
-      _flashAnimationController
-          .forward()
-          .then((_) => _flashAnimationController.reverse());
+      _flashAnimationController.forward().then((_) => _flashAnimationController.reverse());
       final image = await _controller.takePicture();
-      _showLoadingPopup();
+      setState(() => _isProcessing = true);
       await Future.delayed(const Duration(seconds: 2));
-      if (!mounted) return;
-      Navigator.pop(context);
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-            builder: (context) => ProcessedImageScreen(imagePath: image.path)),
-      );
+      setState(() => _isProcessing = false);
+      widget.onImageCaptured?.call(image.path);
     } catch (e) {
       debugPrint("Error capturing image: $e");
     }
-  }
-
-  void _showLoadingPopup() {
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) => Dialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        elevation: 10,
-        backgroundColor: Colors.white,
-        child: Padding(
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              SizedBox(
-                height: 60,
-                width: 60,
-                child: Stack(
-                  alignment: Alignment.center,
-                  children: [
-                    CircularProgressIndicator(
-                      valueColor: AlwaysStoppedAnimation(Colors.deepPurple),
-                      strokeWidth: 6,
-                    ),
-                    Icon(Icons.image_search,
-                        color: Colors.deepPurple, size: 28),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 16),
-              const Text(
-                "Processing Image...",
-                style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.deepPurple),
-              ),
-              const SizedBox(height: 10),
-              const Text(
-                "Please wait a moment while we analyze your image.",
-                textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 14, color: Colors.black54),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
   }
 
   @override
@@ -168,9 +117,7 @@ class _ScanScreenState extends State<ScanScreen> with TickerProviderStateMixin {
             ),
           ),
           if (_isProcessing)
-            const Center(
-              child: CircularProgressIndicator(color: Colors.white),
-            ),
+            const Center(child: CircularProgressIndicator(color: Colors.white)),
           Positioned(
             left: 0,
             right: 0,
@@ -179,11 +126,7 @@ class _ScanScreenState extends State<ScanScreen> with TickerProviderStateMixin {
               onCapture: _captureImage,
               onFlashToggle: _toggleFlash,
               onCameraSwitch: _switchCamera,
-              onVoiceCount: () => Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (context) => const VoiceRecordScreen()),
-              ),
+              onVoiceCount: _onVoiceCount,
               isFlashOn: _isFlashOn,
             ),
           ),

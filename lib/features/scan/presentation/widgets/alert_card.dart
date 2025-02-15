@@ -8,13 +8,13 @@ class AlertCard extends StatelessWidget {
   final VoidCallback onDismiss;
 
   const AlertCard({
-    Key? key,
+    super.key,
     required this.title,
     required this.description,
     required this.icon,
     required this.iconColor,
     required this.onDismiss,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
